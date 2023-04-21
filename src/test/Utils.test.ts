@@ -1,8 +1,8 @@
-import { toUpperCase } from "../app/Utils"
+import { toUpperCase } from '../app/Utils'
 
 describe('Utils test suite', () => {
-    test('should return uppercase', () => {
-        const result = toUpperCase('abc');
-        expect(result).toBe('ABC');
-    })
+  test('should return uppercase', () => {
+    const result = toUpperCase('abc')
+    expect(result).toBe('ABC')
+  })
 })

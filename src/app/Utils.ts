@@ -1,3 +1,3 @@
 export function toUpperCase(arg: string) {
-    return arg.toUpperCase();
+  return arg.toUpperCase()
 }
