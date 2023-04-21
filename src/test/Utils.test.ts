@@ -14,6 +14,8 @@ describe('Utils test suite', () => {
       console.log('Teardown')
     })
 
+    it.todo('test long strings')
+
     it('should return correct UpperCase', () => {
       const actual = sut.toUpperCase('abc')
 
