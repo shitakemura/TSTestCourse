@@ -4,7 +4,7 @@ export function toUpperCase(arg: string) {
 
 export type stringInfo = {
   lowerCase: string
-  upperString: string
+  upperCase: string
   characters: string[]
   length: number
   extraInfo: Object | undefined
@@ -13,7 +13,7 @@ export type stringInfo = {
 export function getStringInfo(arg: string): stringInfo {
   return {
     lowerCase: arg.toLowerCase(),
-    upperString: arg.toUpperCase(),
+    upperCase: arg.toUpperCase(),
     characters: Array.from(arg),
     length: arg.length,
     extraInfo: {},
