@@ -1,4 +1,5 @@
 import { DataBase } from '../../app/server_app/data/DataBase'
+import { Account } from '../../app/server_app/model/AuthModel'
 import { HTTP_CODES, HTTP_METHODS } from '../../app/server_app/model/ServerModel'
 import { Server } from '../../app/server_app/server/Server'
 import { RequestTestWrapper } from './test_utils/RequestTestWrapper'
@@ -21,37 +22,60 @@ jest.mock('http', () => ({
   },
 }))
 
-describe.skip('RegisterRequests test suite', () => {
+const someAccount: Account = {
+  id: '',
+  userName: 'someUserName',
+  password: 'somePassword',
+}
+
+const someToken = '1234'
+
+describe.skip('LoginRequests test suit', () => {
+  const insertSpy = jest.spyOn(DataBase.prototype, 'insert')
+  const getBySpy = jest.spyOn(DataBase.prototype, 'getBy')
+
   afterEach(() => {
     requestWrapper.clearFields()
     responseWrapper.clearFields()
+    jest.clearAllMocks()
   })
 
-  it('should register new users', async () => {
+  it('should login user with valid credentials', async () => {
     requestWrapper.method = HTTP_METHODS.POST
-    requestWrapper.body = {
-      userName: 'someUserName',
-      password: 'somePassword',
-    }
-    requestWrapper.url = 'localhost:8080/register'
-    jest.spyOn(DataBase.prototype, 'insert').mockResolvedValueOnce('1234')
+    requestWrapper.body = someAccount
+    requestWrapper.url = 'localhost:8080/login'
+    getBySpy.mockResolvedValueOnce(someAccount)
+    insertSpy.mockResolvedValue(someToken)
 
     await new Server().startServer()
-
-    await new Promise(process.nextTick) // timing issues: https://stackoverflow.com/questions/44741102/how-to-make-jest-wait-for-all-asynchronous-code-to-finish-execution-before-expec
+    await new Promise(process.nextTick)
 
     expect(responseWrapper.statusCode).toBe(HTTP_CODES.CREATED)
-    expect(responseWrapper.body).toEqual(
-      expect.objectContaining({
-        userId: expect.any(String),
-      })
-    )
+    expect(responseWrapper.body).toEqual({
+      token: someToken,
+    })
   })
 
-  it('should reject requests with no userName and password', async () => {
+  it('should not login user with invalid credentials', async () => {
+    requestWrapper.method = HTTP_METHODS.POST
+    requestWrapper.body = someAccount
+    requestWrapper.url = 'localhost:8080/login'
+    getBySpy.mockResolvedValueOnce({
+      userName: 'someOtherUserName',
+      password: 'someOtherPassword',
+    })
+
+    await new Server().startServer()
+    await new Promise(process.nextTick)
+
+    expect(responseWrapper.statusCode).toBe(HTTP_CODES.NOT_fOUND)
+    expect(responseWrapper.body).toBe('wrong username or password')
+  })
+
+  it('should return bad request if no credentials in request', async () => {
     requestWrapper.method = HTTP_METHODS.POST
     requestWrapper.body = {}
-    requestWrapper.url = 'localhost:8080/register'
+    requestWrapper.url = 'localhost:8080/login'
 
     await new Server().startServer()
     await new Promise(process.nextTick)
@@ -63,7 +87,7 @@ describe.skip('RegisterRequests test suite', () => {
   it('should do nothing for not supported methods', async () => {
     requestWrapper.method = HTTP_METHODS.DELETE
     requestWrapper.body = {}
-    requestWrapper.url = 'localhost:8080/register'
+    requestWrapper.url = 'localhost:8080/login'
 
     await new Server().startServer()
     await new Promise(process.nextTick)
