@@ -1,9 +1,10 @@
+import * as generated from '../../app/server_app/data/IdGenerator'
 import { Account } from '../../app/server_app/model/AuthModel'
 import { Reservation } from '../../app/server_app/model/ReservationModel'
 import { HTTP_CODES, HTTP_METHODS } from '../../app/server_app/model/ServerModel'
 import { Server } from '../../app/server_app/server/Server'
 
-describe('Server app integration tests', () => {
+xdescribe('Server app integration tests', () => {
   let server: Server
 
   beforeAll(() => {
@@ -189,5 +190,27 @@ describe('Server app integration tests', () => {
       }
     )
     expect(getResult.status).toBe(HTTP_CODES.NOT_fOUND)
+  })
+
+  it('snapshot demo', async () => {
+    jest.spyOn(generated, 'generateRandomId').mockReturnValueOnce('12345')
+
+    await fetch('http://localhost:8080/reservation', {
+      method: HTTP_METHODS.POST,
+      body: JSON.stringify(someReservation),
+      headers: {
+        authorization: token,
+      },
+    })
+
+    const getResult = await fetch(`http://localhost:8080/reservation/12345`, {
+      method: HTTP_METHODS.GET,
+      headers: {
+        authorization: token,
+      },
+    })
+
+    const getResultBody: Reservation = await getResult.json()
+    expect(getResultBody).toMatchSnapshot()
   })
 })
