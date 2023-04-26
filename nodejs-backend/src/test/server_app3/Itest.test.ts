@@ -4,7 +4,7 @@ import { Reservation } from '../../app/server_app/model/ReservationModel'
 import { HTTP_CODES, HTTP_METHODS } from '../../app/server_app/model/ServerModel'
 import { Server } from '../../app/server_app/server/Server'
 
-xdescribe('Server app integration tests', () => {
+describe('Server app integration tests', () => {
   let server: Server
 
   beforeAll(() => {
